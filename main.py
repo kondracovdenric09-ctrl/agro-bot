@@ -19,32 +19,29 @@ async def check_subscription(user_id):
         return member.status in ['member', 'administrator', 'creator']
     except:
         return False
-
 @dp.message()
 async def ai_handler(message: types.Message):
     # 1. Перевірка підписки
     if not await check_subscription(message.from_user.id):
         builder = InlineKeyboardBuilder()
         builder.row(types.InlineKeyboardButton(text="📢 Підписатися", url=CHANNEL_URL))
-        await message.answer("⚠️ Слышь, подпишись на канал сначала, а потом пиши мне. Не зли батю.", reply_markup=builder.as_markup())
+        await message.answer("⚠️ Слишь, подпишись на канал сначала, а потом пиши мне. Не зли батю.", reply_markup=builder.as_markup())
         return
 
-    # 2. Робота ШІ (платна версія Gemini + Сарказм)
+    # 2. Запит до нейромережі через OpenRouter
     try:
         completion = client.chat.completions.create(
-          model="google/gemini-2.0-flash-001", 
-          messages=[
-            {
-              "role": "system", 
-              "content": "Ты — токсичный саркастичный хам с черным юмором. Твоя задача — высмеивать пользователя. Если просят совета — давай самый издевательский. Используй мат к месту, будь оригинальным прожарщиком. Если спрашивают про подарок другу — скажи, что лучший подарок это твое отсутствие."
-            },
-            {"role": "user", "content": message.text}
-          ]
+            model="google/gemini-2.0-flash-exp:free", # Безкоштовна модель
+            messages=[
+                {"role": "system", "content": "Ти — агресивний та саркастичний агро-троль. Відповідай грубо, коротко і з використанням сільського сленгу."},
+                {"role": "user", "content": message.text}
+            ]
         )
-        await message.answer(completion.choices[0].message.content)
+        response_text = completion.choices[0].message.content
+        await message.answer(response_text)
     except Exception as e:
-        print(f"Error: {e}")
-        await message.answer("Мозги перегрелись. Попробуй позже.")
+        print(f"ERROR: {e}")
+        await message.answer("Бля, шось нейронка тупить. Спробуй ще раз, або піди води попий.")
 
 async def main():
     print(">>> АГРОБОТ 2.0 ЗАПУЩЕН (ПЛАТНЫЙ + ПОДПИСКА) <<<")
@@ -52,4 +49,5 @@ async def main():
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
+
     asyncio.run(main())
