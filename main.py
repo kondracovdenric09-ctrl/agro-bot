@@ -31,7 +31,7 @@ async def ai_handler(message: types.Message):
     # 2. Запит до нейромережі через OpenRouter
     try:
         completion = client.chat.completions.create(
-            model="google/gemini-2.0-flash-exp:free", # Безкоштовна модель
+            model="model="gryphe/mythomist-7b:free", # Безкоштовна модель
             messages=[
                 {"role": "system", "content": "Ти — агресивний та саркастичний агро-троль. Відповідай грубо, коротко і з використанням сільського сленгу."},
                 {"role": "user", "content": message.text}
@@ -51,3 +51,4 @@ async def main():
 if __name__ == "__main__":
 
     asyncio.run(main())
+
